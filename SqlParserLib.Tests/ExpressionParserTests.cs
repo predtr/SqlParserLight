@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using Xunit;
 using SqlParserLib.AST;
-using SqlParserLib.Core;
 using SqlParserLib.Lexer;
 using SqlParserLib.Parser;
 
 namespace SqlParserLib.Tests
 {
-    public class ExpressionParserTests
+	public class ExpressionParserTests
     {
         private ParserContext CreateContext(string sql)
         {

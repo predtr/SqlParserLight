@@ -1,11 +1,9 @@
-using Xunit;
-using SqlParserLib.AST;
 using SqlParserLib.Parser;
 using SqlParserLib.Visitors;
 
 namespace SqlParserLib.Tests
 {
-    public class SqlPrinterVisitorTests
+	public class SqlPrinterVisitorTests
     {
         [Fact]
         public void Accept_SimpleSelect_GeneratesCorrectSql()
@@ -80,7 +78,7 @@ namespace SqlParserLib.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Contains("COUNT(*)", result);
-            Assert.Contains("SUM(amount)", result);
+            Assert.Contains("SUM(orders.amount)", result);
             Assert.Contains("AS total", result);
             Assert.Contains("AS sum_amount", result);
         }

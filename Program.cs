@@ -48,7 +48,8 @@ namespace SqlParserLib
 
             DemonstrateParser(sql2, "Complex SQL Statement with CASE and Parameters");
 
-            Console.WriteLine("\nPress any key to exit...");
+
+			Console.WriteLine("\nPress any key to exit...");
             Console.ReadKey();
         }
 

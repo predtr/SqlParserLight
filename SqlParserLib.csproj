@@ -9,11 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SqlParserLib.Tests\bin\**" />
+    <Compile Remove="SqlParserLib.Tests\obj\**" />
+    <Compile Remove="Utils\**" />
+    <EmbeddedResource Remove="SqlParserLib.Tests\bin\**" />
+    <EmbeddedResource Remove="SqlParserLib.Tests\obj\**" />
+    <EmbeddedResource Remove="Utils\**" />
+    <None Remove="SqlParserLib.Tests\bin\**" />
+    <None Remove="SqlParserLib.Tests\obj\**" />
+    <None Remove="Utils\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Core\" />
     <Folder Include="Lexer\" />
     <Folder Include="Parser\" />
     <Folder Include="AST\" />
-    <Folder Include="Utils\" />
   </ItemGroup>
 
   <ItemGroup>

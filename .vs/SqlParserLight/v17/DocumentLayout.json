@@ -28,7 +28,7 @@
               "RelativeDocumentMoniker": "Visitors\\SqlPrinterVisitor.cs",
               "ToolTip": "D:\\www\\SqlParserLight\\Visitors\\SqlPrinterVisitor.cs",
               "RelativeToolTip": "Visitors\\SqlPrinterVisitor.cs",
-              "ViewState": "AgIAAEAAAAAAAAAAAAAwwE8AAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAE8AAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-15T20:39:39.504Z",
               "EditorCaption": ""
@@ -43,8 +43,7 @@
               "RelativeToolTip": "Visitors\\SqlVisitorBase.cs",
               "ViewState": "AgIAAIUAAAAAAAAAAAAAwJYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-15T20:37:44.81Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-15T20:37:44.81Z"
             }
           ]
         }

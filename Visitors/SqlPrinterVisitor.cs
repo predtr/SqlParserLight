@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 using SqlParserLib.AST;
 
 namespace SqlParserLib.Visitors
 {
-    /// <summary>
-    /// Visitor that prints a SQL statement in a formatted way
-    /// </summary>
-    public class SqlPrinterVisitor : SqlVisitorBase<string>
+	/// <summary>
+	/// Visitor that prints a SQL statement in a formatted way
+	/// </summary>
+	public class SqlPrinterVisitor : SqlVisitorBase<string>
     {
         private int _indentLevel = 0;
         private readonly StringBuilder _sb = new StringBuilder();

@@ -29,6 +29,12 @@ namespace SqlParserLib.Parser
         /// </summary>
         public SqlParser() : this(new SqlLexer())
         {
+            // Configure supported function keywords
+            _functionKeywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "ISNULL", "COALESCE", "DATEDIFF", "DATEADD", "CONVERT", "CAST", "COUNT",
+                "MIN", "MAX", "AVG", "SUM", "UPPER", "LOWER", "SUBSTRING", "LEN", "ABS"
+            };
         }
 
         /// <summary>

@@ -1,12 +1,10 @@
-using System.Collections.Generic;
-using Xunit;
 using SqlParserLib.AST;
 using SqlParserLib.Lexer;
 using SqlParserLib.Parser;
 
 namespace SqlParserLib.Tests
 {
-    public class JoinParserTests
+	public class JoinParserTests
     {
         private ParserContext CreateContext(string sql)
         {

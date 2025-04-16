@@ -666,12 +666,39 @@ namespace SqlParserLib.Parser
 
             // Parse arguments
             bool first = true;
+            int parenLevel = 1; // We've already consumed one left paren
+            
             do
             {
                 if (!first) context.Expect(SqlTokenType.COMMA);
                 first = false;
 
-                // Parse argument expression
+                // Special handling for nested parentheses in function arguments
+                if (context.Current().Type == SqlTokenType.LEFT_PAREN)
+                {
+                    // This could be a nested expression in parentheses
+                    context.Consume(); // Consume the opening parenthesis
+                    parenLevel++;
+                    
+                    // Parse the nested expression
+                    SqlExpression nestedExpr = ParseExpression(context);
+                    expression.Arguments.Add(nestedExpr);
+                    
+                    // Collect referenced columns and parameters
+                    TransferReferencesAndParameters(expression, nestedExpr);
+                    
+                    // Expect closing parenthesis for this nested expression
+                    if (context.Current().Type == SqlTokenType.RIGHT_PAREN)
+                    {
+                        context.Consume(); // Consume the closing parenthesis
+                        parenLevel--;
+                    }
+                    
+                    // If we're still in the function call, continue parsing arguments
+                    continue;
+                }
+                
+                // Normal argument parsing
                 SqlExpression arg = ParseExpression(context);
                 expression.Arguments.Add(arg);
 

@@ -23,11 +23,6 @@ namespace SqlParserLib.Core
         public object Literal { get; }
 
         /// <summary>
-        /// Alias for Literal - for backward compatibility with tests
-        /// </summary>
-        public object Value => Literal;
-
-        /// <summary>
         /// The line number where this token appears
         /// </summary>
         public int Line { get; }

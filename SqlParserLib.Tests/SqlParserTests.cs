@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
 using SqlParserLib.AST;
 using SqlParserLib.Parser;
 
 namespace SqlParserLib.Tests
 {
-    public class SqlParserTests
+	public class SqlParserTests
     {
         [Fact]
         public void Parse_SimpleSelect_ReturnsValidStatement()

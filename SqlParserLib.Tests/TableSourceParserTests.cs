@@ -1,12 +1,9 @@
-using System.Collections.Generic;
-using Xunit;
-using SqlParserLib.AST;
 using SqlParserLib.Lexer;
 using SqlParserLib.Parser;
 
 namespace SqlParserLib.Tests
 {
-    public class TableSourceParserTests
+	public class TableSourceParserTests
     {
         private ParserContext CreateContext(string sql)
         {

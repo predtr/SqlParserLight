@@ -39,7 +39,22 @@ namespace SqlParserLib.Parser
             // Parse columns in SELECT clause
             statement.Columns = ParseColumns(context, skippedExpressions);
 
-            // Expect "FROM" keyword
+            // Check for missing or error in FROM clause
+            if (context.IsAtEnd())
+            {
+                throw new ParseException("Unexpected end of SQL. Expected FROM clause.", context.Current().Line);
+            }
+
+            // Try to recover if we're not at FROM and might have skipped complex expressions
+            if (context.Current().Type != SqlTokenType.KEYWORD || 
+                context.Current().Literal == null || 
+                (SqlKeyword)context.Current().Literal != SqlKeyword.FROM)
+            {
+                // Try to skip to FROM keyword
+                SkipToFromKeyword(context);
+            }
+
+            // Now expect the FROM keyword
             context.ExpectKeyword(SqlKeyword.FROM);
 
             // Parse main table
@@ -420,6 +435,44 @@ namespace SqlParserLib.Parser
 
             // Couldn't resolve, return as is
             return tableNameOrAlias;
+        }
+
+        /// <summary>
+        /// Attempts to skip to the FROM keyword
+        /// </summary>
+        private void SkipToFromKeyword(ParserContext context)
+        {
+            int parenLevel = 0;
+            bool found = false;
+
+            // Skip tokens until we find the FROM keyword outside of any parentheses
+            while (!context.IsAtEnd() && !found)
+            {
+                // Track balanced parentheses
+                if (context.Current().Type == SqlTokenType.LEFT_PAREN)
+                {
+                    parenLevel++;
+                }
+                else if (context.Current().Type == SqlTokenType.RIGHT_PAREN)
+                {
+                    if (parenLevel > 0) parenLevel--;
+                }
+                // Check for FROM but only if we're not inside parentheses
+                else if (parenLevel == 0 && 
+                         context.Current().Type == SqlTokenType.KEYWORD &&
+                         context.Current().Literal != null &&
+                         (SqlKeyword)context.Current().Literal == SqlKeyword.FROM)
+                {
+                    found = true;
+                    break;
+                }
+
+                // Move to next token if we haven't found FROM
+                if (!found)
+                {
+                    context.Consume();
+                }
+            }
         }
     }
 }

@@ -664,51 +664,86 @@ namespace SqlParserLib.Parser
                 return expression;
             }
 
-            // Parse arguments
-            bool first = true;
+            // Parse arguments - with special handling for nested expressions
             int parenLevel = 1; // We've already consumed one left paren
-            
-            do
+            bool first = true;
+
+            while (parenLevel > 0 && !context.IsAtEnd())
             {
-                if (!first) context.Expect(SqlTokenType.COMMA);
+                if (!first)
+                {
+                    // Expect comma between arguments
+                    if (context.Current().Type != SqlTokenType.COMMA)
+                    {
+                        // If not a comma, it might be a closing paren of the function
+                        if (context.Current().Type == SqlTokenType.RIGHT_PAREN)
+                        {
+                            context.Consume();
+                            parenLevel--;
+                            continue;
+                        }
+                        else
+                        {
+                            throw new ParseException($"Expected comma or closing parenthesis at line {context.Current().Line}");
+                        }
+                    }
+                    else
+                    {
+                        context.Consume(); // Consume the comma
+                    }
+                }
                 first = false;
 
-                // Special handling for nested parentheses in function arguments
+                // Handle special case for nested CASE expressions
+                if (context.Current().Type == SqlTokenType.KEYWORD &&
+                    context.Current().Literal != null &&
+                    (SqlKeyword)context.Current().Literal == SqlKeyword.CASE)
+                {
+                    // Parse the nested CASE expression
+                    SqlExpression nestedCase = ParseNestedCaseExpression(context);
+                    expression.Arguments.Add(nestedCase);
+                    TransferReferencesAndParameters(expression, nestedCase);
+                    continue;
+                }
+
+                // Handle nested parenthesized expressions
                 if (context.Current().Type == SqlTokenType.LEFT_PAREN)
                 {
-                    // This could be a nested expression in parentheses
                     context.Consume(); // Consume the opening parenthesis
                     parenLevel++;
+
+                    // Check if it's a complete nested expression or just grouping
+                    int savePosition = context.CurrentPosition;
                     
-                    // Parse the nested expression
+                    // Parse the nested expression inside parentheses
                     SqlExpression nestedExpr = ParseExpression(context);
                     expression.Arguments.Add(nestedExpr);
-                    
-                    // Collect referenced columns and parameters
                     TransferReferencesAndParameters(expression, nestedExpr);
-                    
-                    // Expect closing parenthesis for this nested expression
+
+                    // Look for closing parenthesis
                     if (context.Current().Type == SqlTokenType.RIGHT_PAREN)
                     {
-                        context.Consume(); // Consume the closing parenthesis
+                        context.Consume();
                         parenLevel--;
                     }
                     
-                    // If we're still in the function call, continue parsing arguments
                     continue;
                 }
-                
-                // Normal argument parsing
-                SqlExpression arg = ParseExpression(context);
-                expression.Arguments.Add(arg);
 
-                // Collect referenced columns and parameters
-                TransferReferencesAndParameters(expression, arg);
+                // Handle normal argument (if not a closing parenthesis)
+                if (context.Current().Type != SqlTokenType.RIGHT_PAREN)
+                {
+                    SqlExpression arg = ParseExpression(context);
+                    expression.Arguments.Add(arg);
+                    TransferReferencesAndParameters(expression, arg);
+                }
+                else
+                {
+                    // Found closing parenthesis of the function
+                    context.Consume();
+                    parenLevel--;
+                }
             }
-            while (context.Current().Type == SqlTokenType.COMMA);
-
-            // Expect closing parenthesis
-            context.Expect(SqlTokenType.RIGHT_PAREN);
 
             return expression;
         }

@@ -159,9 +159,8 @@ namespace SqlParserLib.Lexer
 					}
 					else
 					{
-						// Just treat as a division operator or other character
-						// In this simple SQL parser we don't handle division explicitly
-						_errors.Add($"Unexpected character '/' at line {_line}");
+						 // Treat as a division operator
+						AddToken(SqlTokenType.IDENTIFIER, "/");
 					}
 					break;
 

@@ -270,10 +270,12 @@ namespace SqlParserLib.Parser
             try
             {
                 bool foundEndMarker = false;
+                int currentPos = savePosition;
 
-                while (!context.IsAtEnd() && !foundEndMarker)
+                while (currentPos < context.Tokens.Count && !foundEndMarker)
                 {
-                    SqlToken token = context.Current();
+                    SqlToken token = context.GetTokenAt(currentPos);
+                    currentPos++;
 
                     // Track parentheses nesting
                     if (token.Type == SqlTokenType.LEFT_PAREN)
@@ -316,9 +318,6 @@ namespace SqlParserLib.Parser
 
                     // Append the token
                     sb.Append(token.Lexeme).Append(" ");
-
-                    // Move to next token without affecting the actual parser position
-                    context.PeekConsume();
                 }
 
                 return sb.ToString().Trim();
@@ -426,7 +425,7 @@ namespace SqlParserLib.Parser
                     context.Current().Lexeme.Equals("/", StringComparison.OrdinalIgnoreCase)))
             {
                 // Create a binary expression
-                SqlExpression binary = new SqlExpression { Type = ExpressionType.BinaryExpression };
+                SqlExpression binary = new SqlExpression { Type = ExpressionType.BinaryOperation };
                 binary.Left = left;
 
                 // Get the operator

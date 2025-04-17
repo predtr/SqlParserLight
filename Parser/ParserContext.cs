@@ -20,6 +20,11 @@ namespace SqlParserLib.Parser
         public int CurrentPosition => _currentPosition;
 
         /// <summary>
+        /// Gets the internal token list - used for advanced peeking operations
+        /// </summary>
+        public List<SqlToken> Tokens => _tokens;
+
+        /// <summary>
         /// Creates a new parser context with the given tokens
         /// </summary>
         public ParserContext(List<SqlToken> tokens)
@@ -70,14 +75,24 @@ namespace SqlParserLib.Parser
         }
 
         /// <summary>
-        /// Consumes a token without affecting the actual position (for peeking ahead)
+        /// Peeks at the next token without permanently advancing the position
         /// </summary>
         public SqlToken PeekConsume()
         {
             if (_currentPosition >= _tokens.Count - 1)
                 return new SqlToken(SqlTokenType.EOF, "", null, -1);
-                
-            return _tokens[_currentPosition++];
+            
+            // Save current position
+            int originalPosition = _currentPosition;
+            
+            // Temporarily advance and get the token
+            _currentPosition++;
+            SqlToken token = _tokens[_currentPosition - 1];
+            
+            // Restore original position
+            _currentPosition = originalPosition;
+            
+            return token;
         }
 
         /// <summary>
@@ -164,6 +179,17 @@ namespace SqlParserLib.Parser
             }
             
             return builder.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Gets the token at a specific position without changing the current position
+        /// </summary>
+        public SqlToken GetTokenAt(int position)
+        {
+            if (position < 0 || position >= _tokens.Count)
+                return new SqlToken(SqlTokenType.EOF, "", null, -1);
+                
+            return _tokens[position];
         }
 
         /// <summary>

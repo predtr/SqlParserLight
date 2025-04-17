@@ -376,6 +376,11 @@ namespace SqlParserLib.Parser
             foreach (var join in statement.Joins)
             {
                 string tableName = join.Table.GetEffectiveName();
+                if (string.IsNullOrEmpty(tableName))
+                {
+                    throw new ParseException("Join table name cannot be null or empty.", -1);
+                }
+
                 if (!joinGraph.ContainsKey(tableName))
                 {
                     joinGraph[tableName] = new List<JoinEdge>();
@@ -385,9 +390,27 @@ namespace SqlParserLib.Parser
                 string leftTable = join.Condition.LeftColumn.TableName;
                 string rightTable = join.Condition.RightColumn.TableName;
 
+                // Skip join conditions with invalid table names
+                if (string.IsNullOrEmpty(leftTable) || string.IsNullOrEmpty(rightTable))
+                {
+                    Console.WriteLine($"Warning: Skipping join condition with invalid table names: Left='{leftTable}', Right='{rightTable}'");
+                    continue;
+                }
+
                 // Resolve actual table names from aliases if needed
                 leftTable = ResolveTableAlias(statement, leftTable);
                 rightTable = ResolveTableAlias(statement, rightTable);
+
+                // Ensure both tables exist in the graph
+                if (!joinGraph.ContainsKey(leftTable))
+                {
+                    joinGraph[leftTable] = new List<JoinEdge>();
+                }
+
+                if (!joinGraph.ContainsKey(rightTable))
+                {
+                    joinGraph[rightTable] = new List<JoinEdge>();
+                }
 
                 // Add bidirectional edges for the join
                 joinGraph[leftTable].Add(new JoinEdge

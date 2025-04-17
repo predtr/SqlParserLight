@@ -78,10 +78,10 @@ namespace SqlParserLib.Tests
             var parser = new SqlParser();
             var sql = "SELECT u.id, u.name FROM users u INNER JOIN orders o ON u.id = o.user_id";
             SqlStatement statement = parser.Parse(sql);
-            
+
             // Act
-            var result = parser.GetColumnPath(statement, "id");
-            
+            var result = statement.GetColumnPath("id");
+
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Found);

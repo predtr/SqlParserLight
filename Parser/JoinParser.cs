@@ -104,30 +104,44 @@ namespace SqlParserLib.Parser
         {
             var condition = new SqlJoinCondition();
 
-            // Parse left side of the join condition (table1.column)
+            // Parse left side of the join condition (table1.column or literal)
             string leftTable = context.Consume().Lexeme;
-            context.Expect(SqlTokenType.DOT);
-            string leftColumn = context.Consume().Lexeme;
-            condition.LeftColumn = new ColumnReference { TableName = leftTable, ColumnName = leftColumn };
+            if (context.Current().Type == SqlTokenType.DOT)
+            {
+                context.Expect(SqlTokenType.DOT);
+                string leftColumn = context.Consume().Lexeme;
+                condition.LeftColumn = new ColumnReference { TableName = leftTable, ColumnName = leftColumn };
+            }
+            else
+            {
+                // Handle literal on the left side
+                condition.LeftColumn = new ColumnReference { TableName = null, ColumnName = leftTable };
+            }
 
             // Parse comparison operator (usually '=')
             condition.Operator = context.Consume().Lexeme;
 
-            // Parse right side of the join condition (table2.column)
+            // Parse right side of the join condition (table2.column or literal)
             string rightTable = context.Consume().Lexeme;
-            context.Expect(SqlTokenType.DOT);
-            string rightColumn = context.Consume().Lexeme;
-            condition.RightColumn = new ColumnReference { TableName = rightTable, ColumnName = rightColumn };
+            if (context.Current().Type == SqlTokenType.DOT)
+            {
+                context.Expect(SqlTokenType.DOT);
+                string rightColumn = context.Consume().Lexeme;
+                condition.RightColumn = new ColumnReference { TableName = rightTable, ColumnName = rightColumn };
+            }
+            else
+            {
+                // Handle literal on the right side
+                condition.RightColumn = new ColumnReference { TableName = null, ColumnName = rightTable };
+            }
 
-            // Vérifier si la condition est suivie d'un AND (condition complexe)
-            // Ignorer les conditions supplémentaires mais ne pas échouer
+            // Check for additional conditions (e.g., AND ...)
             if (!context.IsAtEnd() && 
                 context.Current().Type == SqlTokenType.KEYWORD &&
                 context.Current().Literal != null &&
                 (SqlKeyword)context.Current().Literal == SqlKeyword.AND)
             {
-                // On a trouvé un AND, mais on ne stocke que la première condition
-                // Cependant, on consomme tous les tokens jusqu'au prochain mot-clé important
+                // Skip additional conditions but do not fail
                 SkipAdditionalConditions(context);
             }
 

@@ -116,5 +116,25 @@ namespace SqlParserLib.Tests
 		SqlStatement statement = parser.Parse(expression);
 		Assert.Equal(4, statement.Joins.Count);
 	}
+
+	[Fact]
+	public void Parse_ComplexConditionWithLeftSelect_ParsesCorrectly()
+	{
+		//We must ignore Left/inner Select as we don't need them
+		string expression = @"
+	        SELECT toto.toto
+	        FROM TotoTable toto
+	            LEFT JOIN
+				(
+					SELECT tata.field1
+					FROM [dbo].TataTable tata
+					GROUP BY field1
+				) ns
+					ON ns.field1 = toto.field1
+	        WHERE toto.status = 'val';";
+		ISqlParser parser = new SqlParser();
+		SqlStatement statement = parser.Parse(expression);
+		Assert.Equal(1, statement.Joins.Count);
+	}
     }
 }

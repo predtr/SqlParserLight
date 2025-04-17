@@ -95,23 +95,25 @@ namespace SqlParserLib.Tests
         }
 
 	[Fact]
-        public void Parse_ComplexConditionWithLiteral_ParsesCorrectly()
-        {
-            // Arrange
-            var parser = new JoinParser();
-            var context = CreateContext("INNER JOIN orders o ON u.id = o.user_id AND o.status = 1");
-            var tables = new Dictionary<string, SqlTableSource>();
-            var mainTable = new SqlTableSource { TableName = "users", Alias = "u" };
-            tables["u"] = mainTable;
-            
-            // Act
-            var join = parser.Parse(context, tables);
-            
-            // Assert
-            Assert.NotNull(join);
-            Assert.Equal("orders", join.Table.TableName);
-            Assert.NotNull(join.Condition);
-            // Additional assertions would depend on how your parser handles complex conditions
-        }
+	public void Parse_ComplexConditionWithLiteral_ParsesCorrectly()
+	{
+		string expression = @"
+	        SELECT toto.toto
+	        FROM TotoTable toto
+	            INNER JOIN dbo.TataTable tata
+	                ON toto.field1 = tata.field1
+	            INNER JOIN dbo.TutuTable tutu
+	                ON tutu.field1 = tata.field1
+	            LEFT JOIN dbo.TitiTable titi
+	                ON titi.field1 = tutu.field1
+	                   AND titi.field2 = 1
+	            LEFT JOIN dbo.TeteTable tete
+	                ON tete.field1 = titi.field1
+	                   AND tete.field2 = titi.field2
+	        WHERE toto.status = 'val';";
+		ISqlParser parser = new SqlParser();
+		SqlStatement statement = parser.Parse(expression);
+		Assert.Equal(4, statement.Joins.Count);
+	}
     }
 }

@@ -107,7 +107,7 @@ namespace SqlParserLib
                 {
                     string columnToFind = statement.Columns[0].Name;
                     Console.WriteLine($"\nFinding path for column: {columnToFind}");
-                    var result = parser.GetColumnPath(statement, columnToFind);
+                    var result = statement.GetColumnPath(columnToFind);
                     Console.WriteLine(result);
 
                     // If there are aliases, demonstrate finding one
@@ -115,7 +115,7 @@ namespace SqlParserLib
                     if (columnWithAlias != null)
                     {
                         Console.WriteLine($"\nFinding path for alias: {columnWithAlias.Alias}");
-                        result = parser.GetColumnPath(statement, columnWithAlias.Alias);
+                        result = statement.GetColumnPath(columnWithAlias.Alias);
                         Console.WriteLine(result);
                     }
                 }

@@ -1,6 +1,7 @@
 using SqlParserLib.AST;
 using SqlParserLib.Lexer;
 using SqlParserLib.Parser;
+using SqlParserLib.Interfaces;
 
 namespace SqlParserLib.Tests
 {

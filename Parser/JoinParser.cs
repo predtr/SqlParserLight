@@ -119,7 +119,67 @@ namespace SqlParserLib.Parser
             string rightColumn = context.Consume().Lexeme;
             condition.RightColumn = new ColumnReference { TableName = rightTable, ColumnName = rightColumn };
 
+            // Vérifier si la condition est suivie d'un AND (condition complexe)
+            // Ignorer les conditions supplémentaires mais ne pas échouer
+            if (!context.IsAtEnd() && 
+                context.Current().Type == SqlTokenType.KEYWORD &&
+                context.Current().Literal != null &&
+                (SqlKeyword)context.Current().Literal == SqlKeyword.AND)
+            {
+                // On a trouvé un AND, mais on ne stocke que la première condition
+                // Cependant, on consomme tous les tokens jusqu'au prochain mot-clé important
+                SkipAdditionalConditions(context);
+            }
+
             return condition;
+        }
+
+        /// <summary>
+        /// Ignore les conditions supplémentaires après un AND
+        /// </summary>
+        private void SkipAdditionalConditions(ParserContext context)
+        {
+            // Consomme le token AND
+            context.Consume();
+
+            int parenLevel = 0;
+            bool found = false;
+
+            // Skip tokens until we find a keyword that would end the join condition
+            while (!context.IsAtEnd() && !found)
+            {
+                if (context.Current().Type == SqlTokenType.LEFT_PAREN)
+                {
+                    parenLevel++;
+                }
+                else if (context.Current().Type == SqlTokenType.RIGHT_PAREN)
+                {
+                    if (parenLevel > 0) parenLevel--;
+                }
+                // Si on est au niveau 0 de parenthèses et qu'on trouve un mot clé important, on s'arrête
+                else if (parenLevel == 0 && 
+                        context.Current().Type == SqlTokenType.KEYWORD)
+                {
+                    SqlKeyword keyword = (SqlKeyword)context.Current().Literal;
+                    
+                    // Ces mots-clés devraient indiquer la fin de la clause ON
+                    if (keyword == SqlKeyword.INNER || keyword == SqlKeyword.LEFT || 
+                        keyword == SqlKeyword.RIGHT || keyword == SqlKeyword.FULL || 
+                        keyword == SqlKeyword.CROSS || keyword == SqlKeyword.JOIN ||
+                        keyword == SqlKeyword.WHERE || keyword == SqlKeyword.GROUP ||
+                        keyword == SqlKeyword.HAVING || keyword == SqlKeyword.ORDER)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // Seulement si on n'a pas trouvé un mot-clé important
+                if (!found)
+                {
+                    context.Consume();
+                }
+            }
         }
     }
 }

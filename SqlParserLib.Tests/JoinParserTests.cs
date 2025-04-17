@@ -93,5 +93,25 @@ namespace SqlParserLib.Tests
             Assert.NotNull(join.Condition);
             // Additional assertions would depend on how your parser handles complex conditions
         }
+
+	[Fact]
+        public void Parse_ComplexConditionWithLiteral_ParsesCorrectly()
+        {
+            // Arrange
+            var parser = new JoinParser();
+            var context = CreateContext("INNER JOIN orders o ON u.id = o.user_id AND o.status = 1");
+            var tables = new Dictionary<string, SqlTableSource>();
+            var mainTable = new SqlTableSource { TableName = "users", Alias = "u" };
+            tables["u"] = mainTable;
+            
+            // Act
+            var join = parser.Parse(context, tables);
+            
+            // Assert
+            Assert.NotNull(join);
+            Assert.Equal("orders", join.Table.TableName);
+            Assert.NotNull(join.Condition);
+            // Additional assertions would depend on how your parser handles complex conditions
+        }
     }
 }

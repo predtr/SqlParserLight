@@ -118,6 +118,28 @@ namespace SqlParserLib.Tests
 	}
 
 	[Fact]
+	public void Parse_ComplexConditionWithLiteralInFirstCondition_ParsesCorrectly()
+	{
+		string expression = @"
+	    SELECT toto.toto
+	    FROM TotoTable toto
+	        INNER JOIN dbo.TataTable tata
+	            ON toto.field1 = tata.field1
+	        INNER JOIN dbo.TutuTable tutu
+	            ON tutu.field1 = tata.field1
+	        LEFT JOIN dbo.TitiTable titi
+	            ON titi.field1 = 'tutu'
+	               AND titi.field2 = 1
+	        LEFT JOIN dbo.TeteTable tete
+	            ON tete.field1 = titi.field1
+	               AND tete.field2 = titi.field2
+	    WHERE toto.status = 'val';";
+		ISqlParser parser = new SqlParser();
+		SqlStatement statement = parser.Parse(expression);
+		Assert.Equal(4, statement.Joins.Count);
+	}
+
+	[Fact]
 	public void Parse_ComplexConditionWithLeftSelect_ParsesCorrectly()
 	{
 		//We must ignore Left/inner Select as we don't need them

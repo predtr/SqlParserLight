@@ -68,6 +68,23 @@ namespace SqlParserLib.Tests
             Assert.Equal(ExpressionType.BinaryOperation, expression.Type);
             Assert.Equal("*", expression.Operator);
         }
+
+	[Fact]
+	public void Parse_ArithmeticExpressionWithDivided_ReturnsCorrectStructure()
+	{
+		// Arrange
+		var functionKeywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		var parser = new ExpressionParser(functionKeywords);
+		var context = CreateContext("price / quantity");
+	
+		// Act
+		var expression = parser.Parse(context);
+	
+		// Assert
+		Assert.NotNull(expression);
+		Assert.Equal(ExpressionType.BinaryOperation, expression.Type);
+		Assert.Equal("/", expression.Operator);
+	}
         
         [Fact]
         public void Parse_ComplexExpression_TracksReferencedColumns()
